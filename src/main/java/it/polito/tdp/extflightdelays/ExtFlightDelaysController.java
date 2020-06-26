@@ -5,8 +5,11 @@
 package it.polito.tdp.extflightdelays;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Airport;
+import it.polito.tdp.extflightdelays.model.Arco;
 import it.polito.tdp.extflightdelays.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,7 +38,7 @@ public class ExtFlightDelaysController {
     private Button btnAnalizza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoPartenza"
-    private ComboBox<?> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAeroportiConnessi"
     private Button btnAeroportiConnessi; // Value injected by FXMLLoader
@@ -48,12 +51,39 @@ public class ExtFlightDelaysController {
 
     @FXML
     void doAnalizzaAeroporti(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	
+        String xS=this.distanzaMinima.getText();
+        
+        Integer x;
+    	
+    	try {
+    		x=Integer.parseInt(xS);
+    	}catch(NumberFormatException e) {
+    		
+    		txtResult.setText("Devi inserire solo numeri");
+    		return ;
+    	}
+    	this.model.creaGrafo(x);
+    	
+    	txtResult.appendText("Grafo Creato!\n");
+     	txtResult.appendText("# Vertici: " + model.nVertici()+ "\n");
+     	txtResult.appendText("# Archi: " + model.nArchi() + "\n");
+     	
+     	this.cmbBoxAeroportoPartenza.getItems().addAll(model.vertici());
     }
 
     @FXML
     void doCalcolaAeroportiConnessi(ActionEvent event) {
 
+    	Airport a=this.cmbBoxAeroportoPartenza.getValue();
+    	List<Arco> aC=model.getConnessi(a);
+    	txtResult.appendText("Gli aeroporti connessi ad "+a+" sono: \n");
+    	
+    	for(Arco aa:aC) {
+    		txtResult.appendText(aa.getA2()+" "+aa.getPeso()+"\n");
+    	}
+    	
     }
 
     @FXML
@@ -75,7 +105,6 @@ public class ExtFlightDelaysController {
     
     public void setModel(Model model) {
 		this.model = model;
-		
 	}
 }
 
