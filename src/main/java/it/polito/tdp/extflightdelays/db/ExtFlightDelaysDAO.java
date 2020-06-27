@@ -42,7 +42,7 @@ public class ExtFlightDelaysDAO {
 	public void loadAllAirports(Map<Integer, Airport> idMap) {
 		String sql = "SELECT * FROM airports";
 		
-
+ 
 		try {
 			Connection conn = ConnectDB.getConnection();
 			PreparedStatement st = conn.prepareStatement(sql);

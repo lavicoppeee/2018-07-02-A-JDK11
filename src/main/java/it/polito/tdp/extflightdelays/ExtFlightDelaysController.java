@@ -75,7 +75,8 @@ public class ExtFlightDelaysController {
 
     @FXML
     void doCalcolaAeroportiConnessi(ActionEvent event) {
-
+    	this.txtResult.clear();
+        
     	Airport a=this.cmbBoxAeroportoPartenza.getValue();
     	List<Arco> aC=model.getConnessi(a);
     	txtResult.appendText("Gli aeroporti connessi ad "+a+" sono: \n");
@@ -88,7 +89,30 @@ public class ExtFlightDelaysController {
 
     @FXML
     void doCercaItinerario(ActionEvent event) {
+    	this.txtResult.clear();
+    	Airport a=this.cmbBoxAeroportoPartenza.getValue();
+    	
+    	String xM=this.numeroVoliTxtInput.getText();
+    	
+        Integer xMax;
+    	
+    	try {
+    		xMax=Integer.parseInt(xM);
+    	}catch(NumberFormatException e) {
+    		
+    		txtResult.setText("Devi inserire solo numeri");
+    		return ;
+    	}
+    	
+    	List<Airport> aList=this.model.cammino(xMax, a);
+    	
+    	txtResult.appendText("Con un numero max di miglia di "+xMax+" da" + a +" si genera un cammino con peso "+model.getBestPeso()+" e possiamo raggiungere: \n");
+    	
+    	for(Airport aL:aList) {
+    		txtResult.appendText(aL.toString()+"\n");
+    	}
 
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete

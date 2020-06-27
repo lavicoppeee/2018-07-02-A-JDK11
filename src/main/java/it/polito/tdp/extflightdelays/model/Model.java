@@ -16,8 +16,10 @@ public class Model {
 	private Graph<Airport,DefaultWeightedEdge> graph;
 	private Map<Integer,Airport> idMap;
 	
-	private List<Airport> airports;
 	private List<Arco> archi;
+	
+	private Double bestPeso;
+	private List<Airport> bestCammino;
 	
 	public Model() {
 		dao=new ExtFlightDelaysDAO();
@@ -71,6 +73,61 @@ public class Model {
 			return archiConnessi;
 			
 		}
+	
+	public List<Airport> cammino (int xMax,Airport partenza) {
+		this.bestPeso=0.0;
+		this.bestCammino=null;
+		
+		List<Airport> parziale=new ArrayList<Airport>();
+		parziale.add(partenza);
+		
+		ricorsione(parziale,xMax);
+		
+		return bestCammino;
+	}
+
+	private void ricorsione(List<Airport> parziale, int xMax) {
+		
+		//caso terminale 
+		   //se il peso degli archi è pari al peso delle miglia massime
+			double peso=this.calcolaPeso(parziale);
+			if(peso>xMax) {
+				this.bestPeso=peso;
+				this.bestCammino=new ArrayList<>(parziale);
+				return;
+			}
+			
+		
+		List<Airport> vicini=Graphs.neighborListOf(graph, parziale.get(0));
+		for(Airport v:vicini) {
+			if(!parziale.contains(v)) {
+				parziale.add(v);
+				ricorsione(parziale,xMax);
+				parziale.remove(parziale.size()-1);
+			}
+		}
+		
+	
+	}
+	
+	
+	public Double getBestPeso() {
+		return bestPeso;
+	}
+
+	private double calcolaPeso(List<Airport> parziale) {
+		double peso=0.0;
+		
+		for(int i=1; i<parziale.size();i++) {
+			if(this.graph.getEdge(parziale.get(i), parziale.get(i-1)) != null) {
+				
+			Double pNew=this.graph.getEdgeWeight(this.graph.getEdge(parziale.get(i-1),parziale.get(i)));
+			peso+=pNew;
+		}
+	}
+		
+		return peso;
+	}
 
   }
 
