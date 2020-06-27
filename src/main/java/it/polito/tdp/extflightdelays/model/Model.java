@@ -81,28 +81,31 @@ public class Model {
 		List<Airport> parziale=new ArrayList<Airport>();
 		parziale.add(partenza);
 		
-		ricorsione(parziale,xMax);
+		ricorsione(parziale, partenza, xMax);
 		
 		return bestCammino;
 	}
 
-	private void ricorsione(List<Airport> parziale, int xMax) {
+	private void ricorsione(List<Airport> parziale, Airport l, int xMax) {
 		
 		//caso terminale 
-		   //se il peso degli archi è pari al peso delle miglia massime
+		   //se il peso tot degli archi è pari al peso delle miglia massime
+		
 			double peso=this.calcolaPeso(parziale);
-			if(peso>xMax) {
+			if(peso<xMax) {
+				if(peso>bestPeso) {
 				this.bestPeso=peso;
 				this.bestCammino=new ArrayList<>(parziale);
+				}
+			}else 
 				return;
-			}
 			
 		
-		List<Airport> vicini=Graphs.neighborListOf(graph, parziale.get(0));
+		List<Airport> vicini=Graphs.neighborListOf(graph,l);
 		for(Airport v:vicini) {
 			if(!parziale.contains(v)) {
 				parziale.add(v);
-				ricorsione(parziale,xMax);
+				ricorsione(parziale,v,xMax);
 				parziale.remove(parziale.size()-1);
 			}
 		}
