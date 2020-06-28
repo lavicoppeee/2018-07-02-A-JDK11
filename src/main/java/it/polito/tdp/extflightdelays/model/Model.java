@@ -23,19 +23,20 @@ public class Model {
 	
 	public Model() {
 		dao=new ExtFlightDelaysDAO();
-		idMap = new HashMap<>();
+		
 	}
 
 	public void creaGrafo(int x) {
 		this.graph=new SimpleWeightedGraph<Airport,DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		this.archi=new ArrayList<>();
+		idMap = new HashMap<>();
 		
-		dao.getVertici(x,idMap);
-		Graphs.addAllVertices(graph, idMap.values());
+		dao.getVertici(idMap);
+		//Graphs.addAllVertices(graph, idMap.values());
 		
 		
 		for (Arco a : dao.getArchi(x,idMap)) {
-			if (this.graph.vertexSet().contains(a.getA1()) && this.graph.vertexSet().contains(a.getA2())) {
+			if (!this.graph.containsEdge(a.getA1(), a.getA2())){
 				Graphs.addEdgeWithVertices(graph, a.getA1(), a.getA2(), a.getPeso());
 				archi.add(new Arco(a.getA1(),a.getA2(),a.getPeso()));
 			}
@@ -76,61 +77,59 @@ public class Model {
 	
 	public List<Airport> cammino (int xMax,Airport partenza) {
 		this.bestPeso=0.0;
-		this.bestCammino=null;
+		this.bestCammino=new ArrayList<>();
 		
 		List<Airport> parziale=new ArrayList<Airport>();
 		parziale.add(partenza);
 		
-		ricorsione(parziale, partenza, xMax);
+		ricorsione(parziale, 1, xMax);
 		
 		return bestCammino;
 	}
 
-	private void ricorsione(List<Airport> parziale, Airport l, int xMax) {
+	
+	
+	
+	
+	private void ricorsione(List<Airport> parziale, int l, double xMax) {
+		// TODO Auto-generated method stub
+        Airport last = parziale.get(parziale.size()-1);
 		
-		//caso terminale 
-		   //se il peso tot degli archi è pari al peso delle miglia massime
+      //caso terminale 
+        //1
+		if(l > this.bestCammino.size()) {
+			this.bestCammino = new ArrayList<>(parziale);
+			this.bestPeso = xMax;
+		}
+		//2
+		if(l == this.bestCammino.size() && xMax> this.bestPeso) {
+			this.bestCammino = new ArrayList<>(parziale);
+			this.bestPeso = xMax;
+		}
+	
+		//ricorsione, aggiorno il peso 
+	List<Airport> vicini=Graphs.neighborListOf(this.graph, last);
 		
-			double peso=this.calcolaPeso(parziale);
-			if(peso<xMax) {
-				if(peso>bestPeso) {
-				this.bestPeso=peso;
-				this.bestCammino=new ArrayList<>(parziale);
-				}
-			}else 
-				return;
-			
-		
-		List<Airport> vicini=Graphs.neighborListOf(graph,l);
-		for(Airport v:vicini) {
-			if(!parziale.contains(v)) {
+		for(Airport v : vicini) {
+			Double peso = this.graph.getEdgeWeight(this.graph.getEdge(last, v));
+			if(!parziale.contains(v) && xMax >= peso) {
 				parziale.add(v);
-				ricorsione(parziale,v,xMax);
+				xMax -= peso;
+				this.ricorsione(parziale, l++, xMax);
+				
 				parziale.remove(parziale.size()-1);
+				xMax += peso;
 			}
 		}
-		
-	
+   
 	}
+
 	
 	
 	public Double getBestPeso() {
 		return bestPeso;
 	}
 
-	private double calcolaPeso(List<Airport> parziale) {
-		double peso=0.0;
-		
-		for(int i=1; i<parziale.size();i++) {
-			if(this.graph.getEdge(parziale.get(i), parziale.get(i-1)) != null) {
-				
-			Double pNew=this.graph.getEdgeWeight(this.graph.getEdge(parziale.get(i-1),parziale.get(i)));
-			peso+=pNew;
-		}
-	}
-		
-		return peso;
-	}
 
   }
 

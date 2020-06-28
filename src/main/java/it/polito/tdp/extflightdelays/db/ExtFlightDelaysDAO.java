@@ -95,18 +95,14 @@ public class ExtFlightDelaysDAO {
 		}
 	}
 
-	public void getVertici(int x, Map<Integer, Airport> idMap) {
-		String sql="SELECT a.AIRPORT,a.CITY,a.COUNTRY,a.IATA_CODE, a.ID, a.LATITUDE,a.LONGITUDE,a.STATE,a.TIMEZONE_OFFSET " + 
-				"FROM flights as f, airports as a " + 
-				"WHERE  (a.ID=f.DESTINATION_AIRPORT_ID or a.ID=f.ORIGIN_AIRPORT_ID) and f.ID>=1 \n" + 
-				"GROUP BY (a.ID) " + 
-				"HAVING AVG (f.DISTANCE >= ?) ";
+	public void getVertici(Map<Integer, Airport> idMap) {
+		String sql = "SELECT * FROM airports ORDER BY airport";;
 		
 		List<Airport> result=new ArrayList<>();
 		try {
 			Connection conn = ConnectDB.getConnection();
 			PreparedStatement st = conn.prepareStatement(sql);
-			st.setInt(1, x);
+		
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
